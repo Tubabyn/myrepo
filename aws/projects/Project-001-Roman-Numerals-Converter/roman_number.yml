@@ -23,5 +23,34 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
+  WebServerHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref Keyname
+      ImageId: ami-0dc2d3e4c0f9ebd18
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref WebServerSecurityGroup
+      UserData: !Base64 |
+        #!/bin/bash
+        yum update -y
+        yum install python3 -y 
+        pip3 install flask
+        cd /home/ec2-user
+        wget 
+        mkdir templates
+        cd templates
+        wget 
+        wget
+        cd ..
+        python3 app.py
+      Tags:
+        - Key: Name
+          Value: Web Server of ${AWS::StackName} Stack
 
 Outputs:
+  WebsiteURL:
+    Value: !Sub
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt WebServerHost.PublicDnsName
+    Description: Roman Numerals Converter Application URL
